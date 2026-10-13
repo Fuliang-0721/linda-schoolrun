@@ -16,7 +16,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
       - run: sdkmanager "platforms;android-36" "build-tools;36.1.0" "ndk;26.2.11394342"
       - run: bash gradlew :app:assembleDebug :app:testDebugUnitTest
   backend:
