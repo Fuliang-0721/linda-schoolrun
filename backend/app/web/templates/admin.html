@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SchoolRun 管理后台</title>
+    <style>
+        :root {
+            --bg: #f4efe6;
+            --panel: rgba(255, 255, 255, 0.92);
+            --ink: #182430;
+            --muted: #687684;
+            --accent: #0b7a75;
+            --accent-strong: #095c59;
+            --danger: #b42318;
+            --line: rgba(24, 36, 48, 0.12);
+            --shadow: 0 20px 48px rgba(24, 36, 48, 0.08);
+            --radius: 20px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(11, 122, 117, 0.18), transparent 32%),
+                radial-gradient(circle at bottom right, rgba(180, 35, 24, 0.12), transparent 28%),
+                linear-gradient(135deg, #f7f2e7, #eef5f4);
+        }
+
+        .shell {
+            width: min(1200px, calc(100% - 32px));
+            margin: 24px auto;
+            display: grid;
+            gap: 20px;
+        }
+
+        .hero,
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(8px);
+        }
+
+        .hero {
+            padding: 26px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 16px;
+        }
+
+        .hero h1 {
+            margin: 0;
+            font-size: 32px;
+            line-height: 1.05;
+        }
+
+        .hero p {
+            margin: 8px 0 0;
+            color: var(--muted);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(11, 122, 117, 0.1);
+            color: var(--accent-strong);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 300px minmax(0, 1fr);
+            gap: 20px;
+        }
+
+        .sidebar,
+        .content {
+            padding: 20px;
+        }
+
+        .sidebar h2,
+        .content h2 {
+            margin: 0 0 14px;
+            font-size: 18px;
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .nav {
+            display: grid;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .nav button,
+        .action,
+        .primary,
+        .danger,
+        .ghost {
+            border: none;
+            cursor: pointer;
+            border-radius: 14px;
+            transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+        }
+
+        .nav button {
+            text-align: left;
+            padding: 14px 16px;
+            background: #f7faf9;
+            color: var(--ink);
+            border: 1px solid var(--line);
+        }
+
+        .nav button.active {
+            background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+            color: white;
+            border-color: transparent;
+        }
+
+        .nav button:hover,
+        .action:hover,
+        .primary:hover,
+        .danger:hover,
+        .ghost:hover {
+            transform: translateY(-1px);
+            opacity: 0.96;
+        }
+
+        form.login {
+            display: grid;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: 14px;
+            background: white;
+            color: var(--ink);
+        }
+
+        textarea {
+            min-height: 160px;
+            resize: vertical;
+            font-family: "Cascadia Code", "Consolas", monospace;
+        }
+
+        .primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+            color: white;
+            padding: 12px 16px;
+            font-weight: 700;
+        }
+
+        .danger {
+            background: rgba(180, 35, 24, 0.12);
+            color: var(--danger);
+            padding: 10px 14px;
+            font-weight: 700;
+        }
+
+        .ghost {
+            background: rgba(11, 122, 117, 0.08);
+            color: var(--accent-strong);
+            padding: 10px 14px;
+            font-weight: 700;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .grid {
+            display: grid;
+            gap: 14px;
+        }
+
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: #fffdfa;
+            padding: 16px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .card h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .card .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(11, 122, 117, 0.1);
+            color: var(--accent-strong);
+        }
+
+        .danger-pill {
+            background: rgba(180, 35, 24, 0.12);
+            color: var(--danger);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .editor {
+            display: none;
+            gap: 12px;
+            border-top: 1px dashed var(--line);
+            padding-top: 12px;
+        }
+
+        .editor.visible {
+            display: grid;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .status {
+            min-height: 22px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .status.error {
+            color: var(--danger);
+        }
+
+        .status.success {
+            color: var(--accent-strong);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .empty {
+            padding: 20px;
+            border: 1px dashed var(--line);
+            border-radius: 18px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        @media (max-width: 980px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .hero {
+                padding: 22px 20px;
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <section class="hero">
+            <div>
+                <div class="badge">SchoolRun · 管理后台</div>
+                <h1>共享内容管理面板</h1>
+                <p>统一管理用户上传的共享路线与共享 NFC，支持查看、修改、删除。</p>
+            </div>
+            <div class="muted">当前账号：{{ admin_username if authenticated else '未登录' }}</div>
+        </section>
+
+        <section class="hero" style="padding: 0;">
+            <div class="layout" style="width: 100%;">
+                <aside class="sidebar panel" style="margin: 0; box-shadow: none; border: none; border-right: 1px solid var(--line); border-radius: 20px 0 0 20px;">
+                    <h2>后台控制</h2>
+                    <p class="muted">登录后可以切换资源类型，并对记录进行编辑或删除。</p>
+
+                    <div id="login-block" class="{{ 'hidden' if authenticated else '' }}">
+                        <form id="login-form" class="login">
+                            <div>
+                                <label for="login-username">管理员账号</label>
+                                <input id="login-username" name="username" type="text" placeholder="请输入账号" autocomplete="username">
+                            </div>
+                            <div>
+                                <label for="login-password">管理员密码</label>
+                                <input id="login-password" name="password" type="password" placeholder="请输入密码" autocomplete="current-password">
+                            </div>
+                            <button id="login-button" class="primary" type="submit">登录后台</button>
+                        </form>
+                    </div>
+
+                    <div id="nav-block" class="{{ '' if authenticated else 'hidden' }}">
+                        <div class="nav">
+                            <button data-tab="routes" class="active" type="button">共享路线</button>
+                            <button data-tab="nfc" type="button">共享 NFC</button>
+                            <button data-tab="notice" type="button">启动公告</button>
+                            <a href="/admin/clients" class="ghost">客户端统计</a>
+                            <a href="/admin/logs" class="ghost" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">运行日志</a>
+                            <a href="/admin/access" class="ghost" style="text-decoration:none;display:inline-flex;align-items:center;margin-right:10px">服务开关</a>
+                <a href="/admin/ops" class="ghost" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">系统管理</a>
+                            <button id="logout-button" class="danger" type="button">退出登录</button>
+                        </div>
+                    </div>
+
+                    <div id="side-status" class="status"></div>
+                </aside>
+
+                <main class="content panel" style="margin: 0; box-shadow: none; border: none; border-radius: 0 20px 20px 0;">
+                    <div class="toolbar">
+                        <div>
+                            <h2 id="panel-title">共享路线</h2>
+                            <div class="muted" id="panel-subtitle">可修改路线名称、隐私状态和点位 JSON。</div>
+                        </div>
+                        <button id="refresh-button" class="ghost {{ '' if authenticated else 'hidden' }}" type="button">刷新列表</button>
+                    </div>
+
+                    <div id="filter-bar" class="card-actions {{ '' if authenticated else 'hidden' }}" style="margin-bottom: 14px;">
+                        <input id="search-keyword" type="text" placeholder="输入关键词搜索" style="flex: 1; min-width: 220px;">
+                        <select id="privacy-filter" style="width: 160px;">
+                            <option value="all">全部路线</option>
+                            <option value="public">仅公开路线</option>
+                            <option value="private">仅隐私路线</option>
+                        </select>
+                        <select id="page-size" style="width: 120px;">
+                            <option value="10">10 / 页</option>
+                            <option value="20">20 / 页</option>
+                            <option value="50">50 / 页</option>
+                        </select>
+                        <button id="search-button" class="primary" type="button">搜索</button>
+                    </div>
+
+                    <div id="panel-status" class="status"></div>
+                    <div id="panel-content" class="grid"></div>
+                    <div id="panel-pagination" class="card-actions hidden" style="margin-top: 14px; justify-content: flex-end;"></div>
+                </main>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const state = {
+            authenticated: {{ 'true' if authenticated else 'false' }},
+            currentTab: 'routes'
+        };
+
+        const loginBlock = document.getElementById('login-block');
+        const navBlock = document.getElementById('nav-block');
+        const loginForm = document.getElementById('login-form');
+        const logoutButton = document.getElementById('logout-button');
+        const refreshButton = document.getElementById('refresh-button');
+        const sideStatus = document.getElementById('side-status');
+        const panelStatus = document.getElementById('panel-status');
+        const panelContent = document.getElementById('panel-content');
+        const panelPagination = document.getElementById('panel-pagination');
+        const filterBar = document.getElementById('filter-bar');
+        const panelTitle = document.getElementById('panel-title');
+        const panelSubtitle = document.getElementById('panel-subtitle');
+        const searchKeyword = document.getElementById('search-keyword');
+        const privacyFilter = document.getElementById('privacy-filter');
+        const pageSizeSelect = document.getElementById('page-size');
+        const searchButton = document.getElementById('search-button');
+
+        const titles = {
+            routes: ['共享路线', '可修改路线名称、隐私状态和点位 JSON。'],
+            nfc: ['共享 NFC', '可修改名称、URL、包名与来源字段。'],
+            notice: ['启动公告', '客户端启动时弹出的使用说明；保存后用户下次启动即可看到。']
+        };
+
+        const filters = {
+            routes: { query: '', privacyMode: 'all', page: 1, pageSize: 10 },
+            nfc: { query: '', page: 1, pageSize: 10 },
+            notice: { query: '', page: 1, pageSize: 10 }
+        };
+
+        document.querySelectorAll('[data-tab]').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('[data-tab]').forEach(item => item.classList.remove('active'));
+                button.classList.add('active');
+                state.currentTab = button.dataset.tab;
+                updatePanelHeader();
+                loadCurrentTab();
+            });
+        });
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', event => {
+                event.preventDefault();
+                login();
+            });
+        }
+
+        if (logoutButton) {
+            logoutButton.addEventListener('click', logout);
+        }
+
+        if (refreshButton) {
+            refreshButton.addEventListener('click', loadCurrentTab);
+        }
+
+        if (searchButton) {
+            searchButton.addEventListener('click', () => {
+                filters[state.currentTab].query = searchKeyword.value.trim();
+                filters[state.currentTab].pageSize = Number(pageSizeSelect.value || '10');
+                filters[state.currentTab].page = 1;
+                if (state.currentTab === 'routes') {
+                    filters.routes.privacyMode = privacyFilter.value;
+                }
+                loadCurrentTab();
+            });
+        }
+
+        function setStatus(target, message, type = '') {
+            target.textContent = message || '';
+            target.className = 'status' + (type ? ' ' + type : '');
+        }
+
+        function updatePanelHeader() {
+            const [title, subtitle] = titles[state.currentTab];
+            panelTitle.textContent = title;
+            panelSubtitle.textContent = subtitle;
+            syncFilterControls();
+        }
+
+        async function login() {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+
+            setStatus(sideStatus, '正在登录…');
+            const response = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ username, password })
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                setStatus(sideStatus, payload.detail || '登录失败', 'error');
+                return;
+            }
+
+            state.authenticated = true;
+            loginBlock.classList.add('hidden');
+            navBlock.classList.remove('hidden');
+            refreshButton.classList.remove('hidden');
+            setStatus(sideStatus, '登录成功', 'success');
+            loadCurrentTab();
+        }
+
+        async function logout() {
+            await fetch('/api/admin/logout', {
+                method: 'POST',
+                credentials: 'same-origin'
+            });
+            window.location.reload();
+        }
+
+        async function loadCurrentTab() {
+            if (!state.authenticated) {
+                panelContent.innerHTML = '<div class="empty">请先登录后台。</div>';
+                return;
+            }
+            setStatus(panelStatus, '正在加载…');
+            if (state.currentTab === 'routes') {
+                await loadRoutes();
+            } else if (state.currentTab === 'nfc') {
+                await loadNfc();
+            } else {
+                await loadNotice();
+            }
+        }
+
+        async function loadRoutes() {
+            const params = new URLSearchParams({
+                q: filters.routes.query,
+                privacyMode: filters.routes.privacyMode,
+                page: String(filters.routes.page),
+                pageSize: String(filters.routes.pageSize)
+            });
+            const response = await fetch(`/api/admin/routes?${params.toString()}`, { credentials: 'same-origin' });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                setStatus(panelStatus, payload.detail || '加载共享路线失败', 'error');
+                return;
+            }
+
+            const items = payload.items || [];
+            if (!items.length) {
+                panelContent.innerHTML = '<div class="empty">当前没有共享路线记录。</div>';
+                renderPagination(payload.page || 1, payload.totalPages || 0, payload.total || 0);
+                setStatus(panelStatus, '加载完成', 'success');
+                return;
+            }
+
+            panelContent.innerHTML = items.map(route => renderRouteCard(route)).join('');
+            bindRouteActions();
+            renderPagination(payload.page || 1, payload.totalPages || 0, payload.total || 0);
+            setStatus(panelStatus, `已加载 ${items.length} 条共享路线，共 ${payload.total || items.length} 条`, 'success');
+        }
+
+        async function loadNfc() {
+            const params = new URLSearchParams({
+                q: filters.nfc.query,
+                page: String(filters.nfc.page),
+                pageSize: String(filters.nfc.pageSize)
+            });
+            const response = await fetch(`/api/admin/nfc?${params.toString()}`, { credentials: 'same-origin' });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                setStatus(panelStatus, payload.detail || '加载共享 NFC 失败', 'error');
+                return;
+            }
+
+            const items = payload.items || [];
+            if (!items.length) {
+                panelContent.innerHTML = '<div class="empty">当前没有共享 NFC 记录。</div>';
+                renderPagination(payload.page || 1, payload.totalPages || 0, payload.total || 0);
+                setStatus(panelStatus, '加载完成', 'success');
+                return;
+            }
+
+            panelContent.innerHTML = items.map(entry => renderNfcCard(entry)).join('');
+            bindNfcActions();
+            renderPagination(payload.page || 1, payload.totalPages || 0, payload.total || 0);
+            setStatus(panelStatus, `已加载 ${items.length} 条共享 NFC，共 ${payload.total || items.length} 条`, 'success');
+        }
+
+        async function loadNotice() {
+            const response = await fetch('/api/admin/notice', { credentials: 'same-origin' });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok || !payload.data) {
+                setStatus(panelStatus, payload.detail || '读取公告失败', 'error');
+                panelContent.innerHTML = '<div class="empty">读取失败，请重新登录后再试。</div>';
+                return;
+            }
+
+            const notice = payload.data;
+            const updated = notice.updatedAt ? new Date(notice.updatedAt).toLocaleString('zh-CN') : '未知';
+            panelContent.innerHTML = `
+                <article class="card" style="grid-column: 1 / -1;">
+                    <div>
+                        <h3>客户端启动公告</h3>
+                        <div class="meta">
+                            <span class="pill">最后更新：${escapeHtml(updated)}</span>
+                            <span>客户端启动时弹出；保存后用户下次启动即生效</span>
+                        </div>
+                    </div>
+                    <div class="editor" style="display: block;">
+                        <div class="row">
+                            <div>
+                                <label>标题</label>
+                                <input id="notice-title" type="text" value="${escapeAttribute(notice.title)}">
+                            </div>
+                            <div>
+                                <label>QQ 群号（可留空）</label>
+                                <input id="notice-qq" type="text" value="${escapeAttribute(notice.qqGroupNumber)}">
+                            </div>
+                        </div>
+                        <div>
+                            <label>正文</label>
+                            <textarea id="notice-message" rows="8">${escapeHtml(notice.message)}</textarea>
+                        </div>
+                        <div class="row">
+                            <div>
+                                <label>B 站文案（可留空）</label>
+                                <input id="notice-bilibili-text" type="text" value="${escapeAttribute(notice.bilibiliText)}">
+                            </div>
+                            <div>
+                                <label>B 站链接（可留空）</label>
+                                <input id="notice-bilibili-url" type="text" value="${escapeAttribute(notice.bilibiliUrl)}">
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="primary" type="button" id="notice-save">保存公告</button>
+                            <button class="ghost" type="button" id="notice-reload">重新读取</button>
+                            <span class="muted" id="notice-hint">当前显示的就是服务端最新内容</span>
+                        </div>
+                    </div>
+                </article>
+            `;
+
+            document.getElementById('notice-save').addEventListener('click', saveNotice);
+            document.getElementById('notice-reload').addEventListener('click', loadNotice);
+            setStatus(panelStatus, '已读取服务端公告（更新时间：' + updated + '）', 'success');
+        }
+
+        async function saveNotice() {
+            const payload = {
+                title: document.getElementById('notice-title').value.trim(),
+                message: document.getElementById('notice-message').value.trim(),
+                qqGroupNumber: document.getElementById('notice-qq').value.trim(),
+                bilibiliText: document.getElementById('notice-bilibili-text').value.trim(),
+                bilibiliUrl: document.getElementById('notice-bilibili-url').value.trim()
+            };
+            if (!payload.title || !payload.message) {
+                setStatus(panelStatus, '标题和正文不能为空', 'error');
+                return;
+            }
+
+            setStatus(panelStatus, '正在保存…');
+            const response = await fetch('/api/admin/notice', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                setStatus(panelStatus, result.detail || '保存失败', 'error');
+                return;
+            }
+
+            const updated = result.data && result.data.updatedAt
+                ? new Date(result.data.updatedAt).toLocaleString('zh-CN')
+                : '刚刚';
+            setStatus(panelStatus, '已保存（' + updated + '），客户端下次启动生效', 'success');
+            await loadNotice();
+        }
+
+        function renderRouteCard(route) {
+            const pointsJson = JSON.stringify(route.points, null, 2)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;');
+
+            return `
+                <article class="card" data-route-id="${route.id}">
+                    <div>
+                        <h3>${escapeHtml(route.name)}</h3>
+                        <div class="meta">
+                            <span class="pill">${route.pointCount} 个点</span>
+                            <span class="pill ${route.privacyMode ? 'danger-pill' : ''}">${route.privacyMode ? '隐私模式' : '公开模式'}</span>
+                            <span>ID: ${escapeHtml(route.id)}</span>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="ghost action" data-action="toggle-edit" type="button">编辑</button>
+                        <button class="danger action" data-action="delete" type="button">删除</button>
+                    </div>
+                    <div class="editor">
+                        <div class="row">
+                            <div>
+                                <label>路线名称</label>
+                                <input type="text" data-field="name" value="${escapeAttribute(route.name)}">
+                            </div>
+                            <div>
+                                <label>隐私模式</label>
+                                <select data-field="privacyMode">
+                                    <option value="false" ${route.privacyMode ? '' : 'selected'}>公开</option>
+                                    <option value="true" ${route.privacyMode ? 'selected' : ''}>隐私</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label>路线点位 JSON</label>
+                            <textarea data-field="points">${pointsJson}</textarea>
+                        </div>
+                        <div class="card-actions">
+                            <button class="primary action" data-action="save" type="button">保存修改</button>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }
+
+        function renderNfcCard(entry) {
+            return `
+                <article class="card" data-nfc-id="${entry.id}">
+                    <div>
+                        <h3>${escapeHtml(entry.name)}</h3>
+                        <div class="meta">
+                            <span class="pill">${escapeHtml(entry.packageName)}</span>
+                            <span>来源: ${escapeHtml(entry.source || 'manual')}</span>
+                            <span>ID: ${escapeHtml(entry.id)}</span>
+                        </div>
+                    </div>
+                    <div class="muted">${escapeHtml(entry.url)}</div>
+                    <div class="card-actions">
+                        <button class="ghost action" data-action="toggle-edit" type="button">编辑</button>
+                        <button class="danger action" data-action="delete" type="button">删除</button>
+                    </div>
+                    <div class="editor">
+                        <div class="row">
+                            <div>
+                                <label>名称</label>
+                                <input type="text" data-field="name" value="${escapeAttribute(entry.name)}">
+                            </div>
+                            <div>
+                                <label>来源</label>
+                                <input type="text" data-field="source" value="${escapeAttribute(entry.source || 'manual')}">
+                            </div>
+                        </div>
+                        <div>
+                            <label>URL</label>
+                            <input type="text" data-field="url" value="${escapeAttribute(entry.url)}">
+                        </div>
+                        <div>
+                            <label>应用包名</label>
+                            <input type="text" data-field="packageName" value="${escapeAttribute(entry.packageName)}">
+                        </div>
+                        <div class="card-actions">
+                            <button class="primary action" data-action="save" type="button">保存修改</button>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }
+
+        function bindRouteActions() {
+            document.querySelectorAll('[data-route-id]').forEach(card => {
+                bindCardActions(card, '/api/admin/routes/');
+            });
+        }
+
+        function bindNfcActions() {
+            document.querySelectorAll('[data-nfc-id]').forEach(card => {
+                bindCardActions(card, '/api/admin/nfc/');
+            });
+        }
+
+        function bindCardActions(card, basePath) {
+            const editor = card.querySelector('.editor');
+            card.querySelector('[data-action="toggle-edit"]').addEventListener('click', () => {
+                editor.classList.toggle('visible');
+            });
+
+            card.querySelector('[data-action="delete"]').addEventListener('click', async () => {
+                const resourceId = card.dataset.routeId || card.dataset.nfcId;
+                if (!confirm(`确认删除 ${resourceId} 吗？`)) {
+                    return;
+                }
+
+                const response = await fetch(basePath + resourceId, {
+                    method: 'DELETE',
+                    credentials: 'same-origin'
+                });
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    setStatus(panelStatus, payload.detail || payload.message || '删除失败', 'error');
+                    return;
+                }
+
+                setStatus(panelStatus, payload.message || '删除成功', 'success');
+                loadCurrentTab();
+            });
+
+            card.querySelector('[data-action="save"]').addEventListener('click', async () => {
+                const resourceId = card.dataset.routeId || card.dataset.nfcId;
+                let body;
+                try {
+                    body = collectPayload(card);
+                } catch (error) {
+                    setStatus(panelStatus, error.message || '表单格式错误', 'error');
+                    return;
+                }
+
+                const response = await fetch(basePath + resourceId, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(body)
+                });
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    setStatus(panelStatus, payload.detail || '保存失败', 'error');
+                    return;
+                }
+
+                setStatus(panelStatus, '保存成功', 'success');
+                loadCurrentTab();
+            });
+        }
+
+        function collectPayload(card) {
+            if (card.dataset.routeId) {
+                return {
+                    name: card.querySelector('[data-field="name"]').value.trim(),
+                    privacyMode: card.querySelector('[data-field="privacyMode"]').value === 'true',
+                    points: JSON.parse(card.querySelector('[data-field="points"]').value.trim())
+                };
+            }
+
+            return {
+                name: card.querySelector('[data-field="name"]').value.trim(),
+                url: card.querySelector('[data-field="url"]').value.trim(),
+                packageName: card.querySelector('[data-field="packageName"]').value.trim(),
+                source: card.querySelector('[data-field="source"]').value.trim() || 'manual'
+            };
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function escapeAttribute(value) {
+            return escapeHtml(value).replaceAll('`', '&#96;');
+        }
+
+        function syncFilterControls() {
+            if (state.currentTab === 'notice') {
+                filterBar.classList.add('hidden');
+                panelPagination.classList.add('hidden');
+                return;
+            }
+            filterBar.classList.toggle('hidden', !state.authenticated);
+            const current = filters[state.currentTab];
+            searchKeyword.value = current.query || '';
+            pageSizeSelect.value = String(current.pageSize || 10);
+            if (state.currentTab === 'routes') {
+                privacyFilter.classList.remove('hidden');
+                privacyFilter.value = filters.routes.privacyMode || 'all';
+            } else {
+                privacyFilter.classList.add('hidden');
+            }
+        }
+
+        function renderPagination(page, totalPages, total) {
+            if (!totalPages || totalPages <= 1) {
+                panelPagination.innerHTML = total ? `<span class="muted">共 ${total} 条</span>` : '';
+                panelPagination.classList.toggle('hidden', !total);
+                return;
+            }
+
+            panelPagination.classList.remove('hidden');
+            panelPagination.innerHTML = `
+                <span class="muted" style="padding: 10px 0;">第 ${page} / ${totalPages} 页，共 ${total} 条</span>
+                <button class="ghost" type="button" ${page <= 1 ? 'disabled' : ''} id="page-prev">上一页</button>
+                <button class="ghost" type="button" ${page >= totalPages ? 'disabled' : ''} id="page-next">下一页</button>
+            `;
+
+            const previous = document.getElementById('page-prev');
+            const next = document.getElementById('page-next');
+            if (previous) {
+                previous.addEventListener('click', () => {
+                    filters[state.currentTab].page = Math.max(1, page - 1);
+                    loadCurrentTab();
+                });
+            }
+            if (next) {
+                next.addEventListener('click', () => {
+                    filters[state.currentTab].page = Math.min(totalPages, page + 1);
+                    loadCurrentTab();
+                });
+            }
+        }
+
+        updatePanelHeader();
+        if (state.authenticated) {
+            loadCurrentTab();
+        } else {
+            panelContent.innerHTML = '<div class="empty">请先使用管理员账号登录。</div>';
+        }
+    </script>
+</body>
+</html>

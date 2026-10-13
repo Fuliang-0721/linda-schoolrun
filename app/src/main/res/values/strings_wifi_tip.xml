@@ -1,0 +1,7 @@
+<resources>
+    <!-- 每次开始模拟前提示 -->
+    <string name="wifi_tip_title">开始前请注意</string>
+    <string name="wifi_tip_message">跑步时务必关闭 WiFi（网络），只使用移动流量。\n\n请先在系统下拉栏或设置里关闭 WiFi，确认后再开始模拟。</string>
+    <string name="wifi_tip_confirm">已关闭 WiFi，开始</string>
+    <string name="wifi_tip_cancel">取消</string>
+</resources>

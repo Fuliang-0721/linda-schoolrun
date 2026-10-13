@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="telemetry_title">Reporting settings</string>
+    <string name="telemetry_description">Options are enabled by default and can be switched off independently before continuing. Usage includes a random installation ID, device, versions and activity counters. Crash reports include sanitized stack traces and logs. Location includes the latest real coordinates, accuracy and time, captured only in the foreground while simulation is inactive.\n\nDisabling usage or location requests deletion of the existing snapshot; enabled options may report again. Disabling crash reporting requests deletion of this installation’s logs. Failed deletions retry on a later foreground session. Backups expire under the operator’s retention policy. Only administrators can view the data.</string>
+    <string name="telemetry_usage">Share usage statistics</string>
+    <string name="telemetry_location">Share latest real location</string>
+    <string name="telemetry_crash">Automatically upload crash logs</string>
+    <string name="telemetry_erase">Disable all and erase</string>
+    <string name="telemetry_save">Save</string>
+    <string name="telemetry_saved">Saved. Deletion requests will retry on a later online session if necessary.</string>
+    <string name="telemetry_permission_needed">Location permission is required for simulation.</string>
+</resources>

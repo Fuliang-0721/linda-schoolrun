@@ -1,0 +1,15 @@
+.venv/
+.env
+.pytest_cache/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# 本地开发数据库与运行时产物
+*.db
+*.sqlite3
+app_logs/
+# 版本发布：上传的安装包不入库（生产由 Nginx 托管该目录）
+releases/

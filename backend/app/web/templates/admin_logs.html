@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>运行日志 · 后台</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #f5f6f8; color: #23262b;
+               font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; }
+        .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 18px 60px; }
+        header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-bottom: 18px; }
+        h1 { font-size: 22px; margin: 0; }
+        .sub { color: #6b7280; font-size: 13px; }
+        .back { margin-left: auto; font-size: 13px; color: #2563eb; text-decoration: none; }
+        .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+        input, select, button { font-size: 13px; padding: 7px 10px; border-radius: 8px;
+                                border: 1px solid #d5d8de; background: #fff; }
+        input[name="installId"] { width: 260px; }
+        input[name="q"] { width: 240px; }
+        button { background: #2563eb; color: #fff; border-color: #2563eb; cursor: pointer; }
+        a.ghost { font-size: 13px; color: #6b7280; text-decoration: none; align-self: center; }
+        .empty { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px;
+                 text-align: center; color: #6b7280; }
+        .list { display: flex; flex-direction: column; gap: 10px; }
+        .item { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+        .item > summary { cursor: pointer; padding: 12px 14px; display: flex; flex-wrap: wrap;
+                          gap: 10px; align-items: center; font-size: 13px; list-style: none; }
+        .item > summary::-webkit-details-marker { display: none; }
+        .time { font-variant-numeric: tabular-nums; color: #374151; }
+        .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #eef2ff; color: #3730a3; }
+        .badge.crash { background: #fee2e2; color: #991b1b; }
+        .ver, .sdk { color: #4b5563; }
+        .model { color: #111827; }
+        .size, .id { color: #9ca3af; font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+        .id { margin-left: auto; }
+        .meta { padding: 0 14px 8px; color: #6b7280; font-size: 12px; }
+        pre { margin: 0 14px 12px; padding: 12px; background: #0f172a; color: #e2e8f0;
+              border-radius: 8px; font-size: 12px; line-height: 1.45; max-height: 460px;
+              overflow: auto; white-space: pre-wrap; word-break: break-all; }
+        form.delete { padding: 0 14px 14px; }
+        button.danger { background: #dc2626; border-color: #dc2626; }
+        .pager { margin-top: 18px; display: flex; gap: 14px; align-items: center; font-size: 13px; }
+        .pager a { color: #2563eb; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <header>
+        <h1>运行日志</h1>
+        <div class="sub">
+            客户端崩溃现场与手动反馈 · 共 <b>{{ stats.total }}</b> 条
+            （崩溃 <b>{{ stats.crash }}</b> 条，占用 {{ stats.sizeText }}）
+        </div>
+        <a class="back" href="/admin">← 返回控制台</a>
+    </header>
+
+    {% if not authenticated %}
+        <div class="empty">请先在 <a href="/admin">控制台</a> 登录后再查看日志。</div>
+    {% else %}
+        <form class="filters" method="get" action="/admin/logs">
+            <input type="text" name="installId" value="{{ filters.installId }}" placeholder="installId（支持模糊）">
+            <select name="reason">
+                <option value="">全部来源</option>
+                <option value="crash" {{ 'selected' if filters.reason == 'crash' else '' }}>崩溃自动上报</option>
+                <option value="manual" {{ 'selected' if filters.reason == 'manual' else '' }}>用户手动上传</option>
+                <option value="startup" {{ 'selected' if filters.reason == 'startup' else '' }}>启动自检</option>
+            </select>
+            <input type="text" name="q" value="{{ filters.q }}" placeholder="关键词：日志内容 / 机型 / 版本">
+            <input type="hidden" name="pageSize" value="{{ pageSize }}">
+            <button type="submit">筛选</button>
+            <a class="ghost" href="/admin/logs">重置</a>
+        </form>
+
+        {% if not items %}
+            <div class="empty">没有符合条件的日志。</div>
+        {% else %}
+            <div class="list">
+                {% for item in items %}
+                    <details class="item">
+                        <summary>
+                            <span class="time">{{ item.timeText }}</span>
+                            <span class="badge {{ 'crash' if item.reason == 'crash' else '' }}">{{ item.reason }}</span>
+                            <span class="ver">{{ item.versionName }}({{ item.versionCode }})</span>
+                            <span class="model">{{ item.deviceModel }}</span>
+                            <span class="sdk">API {{ item.androidSdk }}</span>
+                            <span class="size">{{ item.sizeText }}</span>
+                            <span class="id">{{ item.installId or '-' }}</span>
+                        </summary>
+                        <div class="meta">日志 ID：{{ item.id }} · 客户端 IP：{{ item.clientIp or '-' }}</div>
+                        <pre>{{ item.logText }}</pre>
+                        <form class="delete" method="post" action="/admin/logs/{{ item.id }}/delete"
+                              onsubmit="return confirm('确认删除这条日志？');">
+                            <button class="danger" type="submit">删除这条日志</button>
+                        </form>
+                    </details>
+                {% endfor %}
+            </div>
+            <div class="pager">
+                {% if page > 1 %}<a href="{{ page_url(page - 1) }}">← 上一页</a>{% endif %}
+                <span>第 {{ page }} / {{ totalPages }} 页 · 共 {{ total }} 条</span>
+                {% if page < totalPages %}<a href="{{ page_url(page + 1) }}">下一页 →</a>{% endif %}
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+</body>
+</html>

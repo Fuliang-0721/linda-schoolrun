@@ -1,0 +1,80 @@
+# 阿里云 ECS 一键部署（Docker Compose）
+#
+#   cd backend/deploy
+#   cp .env.production.example .env      # 然后按注释改口令/域名
+#   docker compose up -d --build
+#
+# 组成：MySQL 8 + FastAPI(uvicorn) + Caddy(自动 HTTPS + APK 静态下载)
+# 说明：只有 Caddy 对外暴露 80/443；API 与数据库都在内部网络，不对外暴露端口。
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      # 2G 内存档机器友好配置
+      - --innodb-buffer-pool-size=128M
+      - --performance-schema=OFF
+      - --max-connections=50
+      - --table-open-cache=64
+    mem_limit: 768m
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-schoolrun_shared}
+      MYSQL_USER: ${MYSQL_USER:-schoolrun_app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MYSQL_HOST: db
+      MYSQL_PORT: "3306"
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: "8000"
+      AUTO_CREATE_TABLES: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - releases:/app/releases      # 上传的 APK
+      - app_logs:/app/app_logs      # 运行日志
+    # 仅监听本机，便于调试时 `curl 127.0.0.1:8000/api/health`；外部一律走 Caddy
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - api
+    env_file:
+      - .env
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - releases:/srv/releases:ro   # /dl/ 直接由 Caddy 提供
+      - caddy_data:/data            # 证书
+      - caddy_config:/config
+
+volumes:
+  db_data:
+  releases:
+  app_logs:
+  caddy_data:
+  caddy_config:

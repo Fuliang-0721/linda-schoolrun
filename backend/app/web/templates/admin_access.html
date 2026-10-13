@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>服务开关 · 管理后台</title>
+<style>
+body{margin:0;background:#f3f6fb;color:#1a2940;font:15px/1.6 system-ui,sans-serif}
+main{max-width:860px;margin:36px auto;padding:0 24px}
+a{color:#235ed2}
+.card{background:#fff;border:1px solid #dce3ef;border-radius:14px;padding:22px;margin:18px 0}
+h1{margin:0 0 6px}.muted{color:#5b6ب}
+.badge{display:inline-block;padding:6px 14px;border-radius:999px;font-weight:700}
+.on{background:#e3f5e8;color:#1b7f3b}.off{background:#fdeaea;color:#b3261e}
+label{display:block;margin:14px 0 6px;font-weight:600}
+textarea,input,select{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #cfd9e8;border-radius:10px;font:14px system-ui}
+.row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+button{margin-top:18px;padding:11px 22px;border-radius:10px;border:0;background:#17459b;color:#fff;font:15px system-ui;cursor:pointer}
+button.stop{background:#b3261e}
+button.resume{background:#1b7f3b}
+button:disabled{opacity:.55;cursor:default}
+#status{margin-top:14px;font-size:14px}
+code{background:#eef2f8;padding:2px 6px;border-radius:6px}
+</style></head><body><main>
+<a href="/admin">← 返回管理后台</a>
+<h1>服务开关（远程一键停止）</h1>
+<p class="muted">客户端**每次启动**都会向服务器确认；未收到确认或确认结果为"停止"时，客户端直接不可用。
+下方开关保存后立即生效，无需重启服务。</p>
+
+<div class="card">
+  <div class="row">
+    <span>当前状态：</span>
+    <span id="state" class="badge {{ 'off' if not data.serviceEnabled else 'on' }}">
+      {{ '已停止（客户端不可用）' if not data.serviceEnabled else '正常服务中' }}
+    </span>
+    <span class="muted" id="scopeText">
+      影响范围：{{ '全部渠道' if data.scope != 'public_only' else '仅公开版（内部版不受影响）' }}
+    </span>
+  </div>
+
+  <label>影响范围</label>
+  <select id="scope">
+    <option value="all" {{ 'selected' if data.scope != 'public_only' else '' }}>全部渠道（含内部版）</option>
+    <option value="public_only" {{ 'selected' if data.scope == 'public_only' else '' }}>仅公开版（内部版仍可用）</option>
+  </select>
+
+  <label>停止时给用户显示的提示文案</label>
+  <textarea id="message" rows="3" placeholder="例如：服务已暂停，请稍后再试。">{{ data.message }}</textarea>
+
+  <div class="row" style="margin-top:6px">
+    <button class="stop" id="btn-stop" type="button">停止全部服务</button>
+    <button class="resume" id="btn-resume" type="button">恢复服务</button>
+  </div>
+  <div id="status" class="muted"></div>
+  <p class="muted" style="margin-top:16px">客户端确认接口：<code>GET /api/client-config?channel=…</code>（返回 <code>killSwitch</code>）；
+  也可用 <code>GET /api/app/access</code> 直接查询当前策略。</p>
+</div>
+</main>
+<script>
+(function () {
+    function setStatus(text, ok) {
+        var el = document.getElementById('status');
+        el.textContent = text;
+        el.style.color = ok ? '#1b7f3b' : '#b3261e';
+    }
+    function save(serviceEnabled) {
+        var message = document.getElementById('message').value;
+        var scope = document.getElementById('scope').value;
+        setStatus('正在保存…', true);
+        fetch('/api/admin/access-policy', {
+            method: 'PUT',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ serviceEnabled: serviceEnabled, message: message, scope: scope })
+        }).then(function (response) {
+            if (!response.ok) { throw new Error('HTTP ' + response.status); }
+            return response.json();
+        }).then(function () {
+            setStatus(serviceEnabled ? '已恢复服务（客户端可正常使用）' : '已停止服务（客户端将无法使用）', true);
+            location.reload();
+        }).catch(function (error) {
+            setStatus('保存失败：' + error.message, false);
+        });
+    }
+    document.getElementById('btn-stop').addEventListener('click', function () {
+        if (confirm('确定要停止全部服务吗？所有客户端下次启动将无法使用。')) { save(false); }
+    });
+    document.getElementById('btn-resume').addEventListener('click', function () {
+        if (confirm('确定要恢复服务吗？')) { save(true); }
+    });
+})();
+</script>
+</body></html>

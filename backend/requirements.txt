@@ -1,0 +1,15 @@
+fastapi==0.143.0
+starlette==1.7.0
+uvicorn[standard]==0.34.2
+SQLAlchemy==2.0.41
+PyMySQL==1.1.1
+# MySQL 8 默认 caching_sha2_password 认证需要它（缺失时报：
+# RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods）
+cryptography==50.0.2
+pydantic-settings==2.9.1
+python-dotenv==1.1.0
+jinja2==3.1.6
+itsdangerous==2.2.0
+python-multipart==0.0.32
+mammoth==1.8.0
+python-docx==1.1.2

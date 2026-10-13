@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SchoolRun 系统管理</title>
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --panel: #ffffff;
+            --ink: #1f2937;
+            --muted: #6b7280;
+            --line: #dbe3ef;
+            --primary: #2563eb;
+            --primary-strong: #1d4ed8;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --radius: 18px;
+            --shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(22, 163, 74, 0.06), transparent 24%),
+                var(--bg);
+            color: var(--ink);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+        }
+
+        .wrap {
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 24px 16px 36px;
+            display: grid;
+            gap: 18px;
+        }
+
+        .hero,
+        .card {
+            background: var(--panel);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(219, 227, 239, 0.9);
+        }
+
+        .hero {
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .hero h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .hero p {
+            margin: 8px 0 0;
+            color: var(--muted);
+        }
+
+        .actions,
+        .inline-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 280px minmax(0, 1fr);
+            gap: 18px;
+        }
+
+        .sidebar,
+        .content {
+            padding: 20px;
+        }
+
+        .sidebar h2,
+        .content h2 {
+            margin: 0 0 12px;
+            font-size: 18px;
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .nav {
+            display: grid;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .nav button,
+        button,
+        .btn-link {
+            border: none;
+            border-radius: 14px;
+            padding: 11px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .nav button {
+            width: 100%;
+            justify-content: flex-start;
+            background: #eef4ff;
+            color: var(--ink);
+        }
+
+        .nav button.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+            color: #fff;
+        }
+
+        .primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+            color: #fff;
+        }
+
+        .ghost,
+        .btn-link {
+            background: #e8eef8;
+            color: var(--ink);
+        }
+
+        .danger {
+            background: rgba(220, 38, 38, 0.12);
+            color: var(--danger);
+        }
+
+        .status {
+            min-height: 22px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .status.success {
+            color: var(--success);
+        }
+
+        .status.error {
+            color: var(--danger);
+        }
+
+        .grid-two {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 18px;
+        }
+
+        .stack {
+            display: grid;
+            gap: 18px;
+        }
+
+        .card {
+            padding: 18px;
+        }
+
+        label {
+            display: block;
+            margin-top: 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            margin-top: 8px;
+            padding: 11px 12px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            font-size: 14px;
+            color: var(--ink);
+            background: #fff;
+        }
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .toolbar-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 180px 120px;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .item {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: #f9fbff;
+            padding: 14px;
+        }
+
+        .item-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .item h3 {
+            margin: 0;
+            font-size: 17px;
+        }
+
+        .item p {
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #dbeafe;
+            color: var(--primary-strong);
+            font-size: 12px;
+        }
+
+        .pill.danger {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        .empty {
+            padding: 24px;
+            border: 1px dashed var(--line);
+            border-radius: 16px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .editor-area {
+            min-height: 280px;
+            font-family: "Cascadia Code", "Consolas", monospace;
+        }
+
+        .tip-html-preview {
+            margin-top: 14px;
+            padding: 14px;
+            border-radius: 14px;
+            border: 1px dashed var(--line);
+            background: #fff;
+            max-height: 280px;
+            overflow: auto;
+        }
+
+        .tip-html-preview img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        @media (max-width: 1080px) {
+            .layout,
+            .grid-two,
+            .toolbar-row {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .actions,
+            .inline-actions {
+                width: 100%;
+            }
+
+            .actions > *,
+            .inline-actions > * {
+                flex: 1 1 calc(50% - 10px);
+                width: calc(50% - 10px);
+            }
+
+            .toolbar-row > * {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <div>
+            <h1>系统管理</h1>
+            <p>集中管理客户端公告、测试者账号、设备机器码封禁和使用技巧。当前账号：{{ admin_username if authenticated else '未登录' }}</p>
+        </div>
+        <div class="actions">
+            <a class="btn-link" href="/admin">返回共享数据后台</a>
+            <button id="logout-button" class="danger {{ '' if authenticated else 'hidden' }}" type="button">退出登录</button>
+        </div>
+    </section>
+
+    <section class="layout">
+        <aside class="hero sidebar" style="padding:20px;">
+            <div id="login-block" class="{{ 'hidden' if authenticated else '' }}">
+                <h2>管理员登录</h2>
+                <p class="muted">登录后可直接在此管理公告、测试者账号、机器码封禁和使用技巧。</p>
+                <label for="login-username">账号</label>
+                <input id="login-username" type="text" placeholder="请输入管理员账号">
+                <label for="login-password">密码</label>
+                <input id="login-password" type="password" placeholder="请输入管理员密码">
+                <div class="actions">
+                    <button id="login-button" class="primary" type="button">登录</button>
+                </div>
+                <div id="login-status" class="status"></div>
+            </div>
+
+            <div id="ops-block" class="{{ '' if authenticated else 'hidden' }}">
+                <h2>管理导航</h2>
+                <p class="muted">切换不同模块进行维护。</p>
+                <div class="nav">
+                    <button data-tab="notice" class="active" type="button">客户端公告</button>
+                    <button data-tab="accounts" type="button">测试者账号</button>
+                    <button data-tab="devices" type="button">设备封禁</button>
+                    <button data-tab="tips" type="button">使用技巧</button>
+                    <button data-tab="software" type="button">内部软件</button>
+                </div>
+                <label for="admin-client-variant">账号组</label>
+                <select id="admin-client-variant">
+                    <option value="exclusive" selected>login-fsr</option>
+                    <option value="{{ client_variant }}">linda-xiaopao</option>
+                </select>
+                <p class="muted">测试者账号和设备封禁只操作当前选中的账号域名</p>
+            </div>
+        </aside>
+
+        <main class="content">
+            <section id="panel-notice" class="grid-two {{ '' if authenticated else 'hidden' }}">
+                <div class="card">
+                    <h2>公告编辑</h2>
+                    <label for="notice-title">标题</label>
+                    <input id="notice-title" type="text" placeholder="公告标题">
+                    <label for="notice-message">内容</label>
+                    <textarea id="notice-message" placeholder="公告内容"></textarea>
+                    <label for="notice-group">QQ群号</label>
+                    <input id="notice-group" type="text" placeholder="QQ群号">
+                    <label for="notice-bilibili-text">Bilibili 文案</label>
+                    <input id="notice-bilibili-text" type="text" placeholder="Bilibili 提示文案">
+                    <label for="notice-bilibili-url">Bilibili 链接</label>
+                    <input id="notice-bilibili-url" type="text" placeholder="https://space.bilibili.com/...">
+                    <div class="actions">
+                        <button id="refresh-notice" class="ghost" type="button">刷新公告</button>
+                        <button id="save-notice" class="primary" type="button">保存公告</button>
+                    </div>
+                    <div id="notice-status" class="status"></div>
+                </div>
+                <div class="card">
+                    <h2>公告说明</h2>
+                    <p class="muted">这里修改的是客户端启动提示和设置页展示的动态公告内容。保存后，移动端请求 <code>/api/client-config</code> 会立即拿到新内容。</p>
+                </div>
+            </section>
+
+            <section id="panel-accounts" class="grid-two hidden">
+                <div class="stack">
+                    <div class="card">
+                        <h2>新增测试者账号</h2>
+                        <p class="muted">当前账号域：<strong data-admin-variant-label>login-fsr</strong>。创建、封禁、删除都只影响这个账号域名</p>
+                        <label for="create-username">用户名</label>
+                        <input id="create-username" type="text" placeholder="测试者账号用户名">
+                        <label for="create-password">密码</label>
+                        <input id="create-password" type="password" placeholder="初始密码">
+                        <label for="create-tester-type">测试者类型</label>
+                        <select id="create-tester-type">
+                            <option value="ordinary">普通测试账号</option>
+                            <option value="advanced">高级测试账号</option>
+                            <option value="donor">贡献者账号</option>
+                            <option value="pioneer">先锋测试账号</option>
+                        </select>
+                        <label for="create-remark">备注</label>
+                        <input id="create-remark" type="text" placeholder="例如：测试组、运营组">
+                        <div class="actions">
+                            <button id="create-account" class="primary" type="button">创建账号</button>
+                            <button id="refresh-accounts" class="ghost" type="button">刷新列表</button>
+                        </div>
+                        <div id="account-create-status" class="status"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="toolbar">
+                        <h2>测试者账号列表</h2>
+                        <span id="accounts-status" class="muted">正在加载...</span>
+                    </div>
+                    <p class="muted">当前账号域：<strong data-admin-variant-label>login-fsr</strong></p>
+                    <div id="accounts-list" class="list"></div>
+                </div>
+            </section>
+
+            <section id="panel-devices" class="grid-two hidden">
+                <div class="card">
+                    <div class="toolbar">
+                        <h2>设备 / 机器码列表</h2>
+                        <span id="devices-status" class="muted">正在加载...</span>
+                    </div>
+                    <p class="muted">当前账号域：<strong data-admin-variant-label>login-fsr</strong></p>
+                    <div class="toolbar-row">
+                        <input id="devices-search" type="text" placeholder="搜索机器码、设备名、IP、封禁原因">
+                        <select id="devices-filter">
+                            <option value="all">全部状态</option>
+                            <option value="active">active</option>
+                            <option value="temporary_banned">temporary_banned</option>
+                            <option value="permanent_banned">permanent_banned</option>
+                            <option value="blocked">blocked</option>
+                        </select>
+                        <button id="devices-refresh" class="ghost" type="button">刷新</button>
+                    </div>
+                    <div id="devices-list" class="list"></div>
+                </div>
+                <div class="card">
+                    <h2>封禁逻辑说明</h2>
+                    <p class="muted">
+                        这里管理的是登录设备机器码，与登录防爆破逻辑直接关联。                        <br>1. <code>temporary_banned</code>：短时间内连续输错密码过多，临时封禁。                        <br>2. <code>permanent_banned</code>：多次触发错密封禁后，永久封禁机器码。                        <br>3. <code>blocked</code>：多次尝试登录他人已绑定账号，机器码直接封禁。                        <br>你可以在这里手动封禁、解封，或直接修改封禁说明与截止时间。                    </p>
+                </div>
+            </section>
+
+            <section id="panel-tips" class="grid-two hidden">
+                <div class="card">
+                    <div class="toolbar">
+                        <h2>使用技巧列表</h2>
+                        <span id="tips-status" class="muted">正在加载...</span>
+                    </div>
+                    <div class="toolbar-row">
+                        <input id="tips-search" type="text" placeholder="搜索标题、内容、作者或贡献者 QQ">
+                        <select id="tips-filter">
+                            <option value="all">全部状态</option>
+                            <option value="published">仅已发布</option>
+                            <option value="draft">仅草稿</option>
+                        </select>
+                        <button id="tips-refresh" class="ghost" type="button">刷新</button>
+                    </div>
+                    <div class="actions" style="margin-top:0;margin-bottom:12px;">
+                        <button id="tips-create-new" class="primary" type="button">新建技巧</button>
+                    </div>
+                    <div id="tips-list" class="list"></div>
+                </div>
+
+                <div class="stack">
+                    <div class="card">
+                        <h2 id="tips-editor-title">新建使用技巧</h2>
+                        <input id="tips-editing-id" type="hidden">
+                        <label for="tips-author">作者账号</label>
+                        <select id="tips-author"></select>
+                        <label for="tips-title">标题</label>
+                        <input id="tips-title" type="text" placeholder="请输入标题">
+                        <label for="tips-contributor">贡献者 QQ</label>
+                        <input id="tips-contributor" type="text" placeholder="请输入贡献者 QQ">
+                        <label for="tips-published">发布状态</label>
+                        <select id="tips-published">
+                            <option value="true">已发布</option>
+                            <option value="false">草稿</option>
+                        </select>
+                        <label for="tips-html">富文本?HTML</label>
+                        <textarea id="tips-html" class="editor-area" placeholder="可直接粘贴富文本 HTML，或从 Word 导入生成。"></textarea>
+                        <label for="tips-word-file">导入 Word (.docx)</label>
+                        <input id="tips-word-file" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                        <div class="actions">
+                            <button id="tips-import-word" class="ghost" type="button">导入 Word</button>
+                            <button id="tips-save" class="primary" type="button">保存技巧</button>
+                            <button id="tips-reset" class="ghost" type="button">重置表单</button>
+                            <button id="tips-delete" class="danger hidden" type="button">删除技巧</button>
+                        </div>
+                        <div id="tips-editor-status" class="status"></div>
+                    </div>
+                    <div class="card">
+                        <h2>HTML 预览</h2>
+                        <iframe id="tips-preview" class="tip-html-preview" sandbox="" title="使用技巧预览" style="width:100%;min-height:240px"></iframe>
+                    </div>
+                </div>
+            </section>
+
+            <section id="panel-software" class="grid-two hidden">
+                <div class="card">
+                    <h2>审核内部软件名</h2>
+                    <p class="muted">测试人员上传日志时只能选择已通过审核的软件名。这里可以新增内部软件名，也可以审核客户端提交的新名称。</p>
+                    <label for="software-name-input">新增内部软件名</label>
+                    <input id="software-name-input" type="text" placeholder="例如：闪动校园">
+                    <div class="actions">
+                        <button id="software-add" class="primary" type="button">保存软件名</button>
+                        <button id="software-refresh" class="ghost" type="button">刷新列表</button>
+                    </div>
+                    <div id="software-status" class="status"></div>
+                </div>
+                <div class="card">
+                    <div class="toolbar">
+                        <h2>软件名列表</h2>
+                        <span class="muted">同意后会进入客户端选择框，拒绝后不会展示给测试人员。</span>
+                    </div>
+                    <div id="software-list" class="list"></div>
+                </div>
+            </section>
+        </main>
+    </section>
+</div>
+
+<script>
+    const LOGIN_FSR_VARIANT = 'exclusive';
+    const FUCKSCHOOLRUN_VARIANT = '{{ client_variant }}';
+
+    const state = {
+        currentTab: 'notice',
+        adminVariant: LOGIN_FSR_VARIANT,
+        accounts: [],
+        authorAccounts: [],
+        tips: [],
+        softwareNames: [],
+        editingTipId: ''
+    };
+
+    const logoutButton = document.getElementById('logout-button');
+    const tipsPreview = document.getElementById('tips-preview');
+
+    function setStatus(id, text, type = '') {
+        const element = typeof id === 'string' ? document.getElementById(id) : id;
+        if (!element) return;
+        element.textContent = text || '';
+        element.className = 'status' + (type ? ' ' + type : '');
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    function adminVariantLabel(variant = currentAdminVariant()) {
+        if (variant === LOGIN_FSR_VARIANT) return 'login-fsr';
+        if (variant === FUCKSCHOOLRUN_VARIANT) return 'linda-xiaopao';
+        return variant || '未选择';
+    }
+
+    function currentAdminVariant() {
+        const selector = document.getElementById('admin-client-variant');
+        return selector?.value || state.adminVariant || LOGIN_FSR_VARIANT;
+    }
+
+    function withClientVariant(url, variant = currentAdminVariant()) {
+        const separator = url.includes('?') ? '&' : '?';
+        return `${url}${separator}clientVariant=${encodeURIComponent(variant || LOGIN_FSR_VARIANT)}`;
+    }
+
+    function updateAdminVariantHints() {
+        state.adminVariant = currentAdminVariant();
+        document.querySelectorAll('[data-admin-variant-label]').forEach((element) => {
+            element.textContent = adminVariantLabel(state.adminVariant);
+        });
+    }
+
+    function switchTab(tab) {
+        state.currentTab = tab;
+        document.querySelectorAll('[data-tab]').forEach(button => {
+            button.classList.toggle('active', button.dataset.tab === tab);
+        });
+        document.getElementById('panel-notice').classList.toggle('hidden', tab !== 'notice');
+        document.getElementById('panel-accounts').classList.toggle('hidden', tab !== 'accounts');
+        document.getElementById('panel-devices').classList.toggle('hidden', tab !== 'devices');
+        document.getElementById('panel-tips').classList.toggle('hidden', tab !== 'tips');
+        document.getElementById('panel-software').classList.toggle('hidden', tab !== 'software');
+    }
+
+    async function login() {
+        setStatus('login-status', '正在登录...');
+        const response = await fetch('/api/admin/login', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: document.getElementById('login-username').value.trim(),
+                password: document.getElementById('login-password').value.trim()
+            })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            setStatus('login-status', payload.detail || '登录失败', 'error');
+            return;
+        }
+        window.location.reload();
+    }
+
+    async function logout() {
+        await fetch('/api/admin/logout', { method: 'POST', credentials: 'same-origin' });
+        window.location.reload();
+    }
+
+    async function loadNotice() {
+        setStatus('notice-status', '正在加载公告...');
+        const response = await fetch('/api/admin/notice', { credentials: 'same-origin' });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            setStatus('notice-status', payload.detail || '加载公告失败', 'error');
+            return;
+        }
+        const notice = payload.data || {};
+        document.getElementById('notice-title').value = notice.title || '';
+        document.getElementById('notice-message').value = notice.message || '';
+        document.getElementById('notice-group').value = notice.qqGroupNumber || '';
+        document.getElementById('notice-bilibili-text').value = notice.bilibiliText || '';
+        document.getElementById('notice-bilibili-url').value = notice.bilibiliUrl || '';
+        setStatus('notice-status', '公告已添加', 'success');
+    }
+
+    async function saveNotice() {
+        setStatus('notice-status', '正在保存公告...');
+        const response = await fetch('/api/admin/notice', {
+            method: 'PUT',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: document.getElementById('notice-title').value.trim(),
+                message: document.getElementById('notice-message').value.trim(),
+                qqGroupNumber: document.getElementById('notice-group').value.trim(),
+                bilibiliText: document.getElementById('notice-bilibili-text').value.trim(),
+                bilibiliUrl: document.getElementById('notice-bilibili-url').value.trim()
+            })
+        });
+        const payload = await response.json().catch(() => ({}));
+        setStatus('notice-status', response.ok ? '公告已保存' : (payload.detail || '保存失败'), response.ok ? 'success' : 'error');
+    }
+
+    function softwareStatusLabel(status) {
+        if (status === 'approved') return '已同意';
+        if (status === 'rejected') return '已拒绝';
+        return '待审核';
+    }
+
+    async function loadSoftwareNames() {
+        setStatus('software-status', '正在加载内部软件名...');
+        const response = await fetch('/api/admin/internal-software-names', { credentials: 'same-origin' });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            setStatus('software-status', payload.detail || '加载内部软件名失败', 'error');
+            return;
+        }
+        state.softwareNames = payload.items || [];
+        renderSoftwareNames();
+        setStatus('software-status', `已添加 ${state.softwareNames.length} 条内部软件名`, 'success');
+    }
+
+    async function addSoftwareName() {
+        const input = document.getElementById('software-name-input');
+        const name = input.value.trim();
+        if (!name) {
+            setStatus('software-status', '请输入内部软件名称', 'error');
+            return;
+        }
+        setStatus('software-status', '正在保存内部软件名...');
+        const response = await fetch('/api/admin/internal-software-names', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            setStatus('software-status', payload.detail || '保存内部软件名失败', 'error');
+            return;
+        }
+        input.value = '';
+        setStatus('software-status', '内部软件名已保存', 'success');
+        await loadSoftwareNames();
+    }
+
+    async function reviewSoftwareName(id, action) {
+        const actionText = action === 'approve' ? '同意' : '拒绝';
+        setStatus('software-status', `正在${actionText}...`);
+        const response = await fetch(`/api/admin/internal-software-names/${id}/${action}`, {
+            method: 'POST',
+            credentials: 'same-origin'
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            setStatus('software-status', payload.detail || `${actionText}失败`, 'error');
+            return;
+        }
+        setStatus('software-status', `${actionText}完成`, 'success');
+        await loadSoftwareNames();
+    }
+
+    async function deleteSoftwareName(id, name) {
+        if (!confirm(`确认删除内部软件名 ${name} 吗？`)) {
+            return;
+        }
+        setStatus('software-status', '正在删除内部软件名...');
+        const response = await fetch(`/api/admin/internal-software-names/${id}`, {
+            method: 'DELETE',
+            credentials: 'same-origin'
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            setStatus('software-status', payload.detail || '删除失败', 'error');
+            return;
+        }
+        setStatus('software-status', '内部软件名已删除', 'success');
+        await loadSoftwareNames();
+    }
+
+    function renderSoftwareNames() {
+        const list = document.getElementById('software-list');
+        if (!state.softwareNames.length) {
+            list.innerHTML = '<div class="empty">暂无内部软件名</div>';
+            return;
+        }
+        list.innerHTML = '';
+        state.softwareNames.forEach(item => {
+            const node = document.createElement('div');
+            node.className = 'item';
+            node.innerHTML = `
+                <div class="item-top">
+                    <div>
+                        <h3>${escapeHtml(item.name)}</h3>
+                        <p>状态：${softwareStatusLabel(item.status)} · 提交者：${escapeHtml(item.submitterUsername || '系统')}</p>
+                    </div>
+                </div>
+                <div class="actions">
+                    <button class="primary ${item.status === 'approved' ? 'hidden' : ''}" data-action="approve" type="button">同意</button>
+                    <button class="ghost ${item.status === 'rejected' ? 'hidden' : ''}" data-action="reject" type="button">拒绝</button>
+                    <button class="danger" data-action="delete" type="button">删除</button>
+                </div>
+            `;
+            node.querySelector('[data-action="approve"]')?.addEventListener('click', () => reviewSoftwareName(item.id, 'approve'));
+            node.querySelector('[data-action="reject"]')?.addEventListener('click', () => reviewSoftwareName(item.id, 'reject'));
+            node.querySelector('[data-action="delete"]')?.addEventListener('click', () => deleteSoftwareName(item.id, item.name));
+            list.appendChild(node);
+        });
+    }
+
+    async function loadAccounts() {
+        const variant = currentAdminVariant();
+        setStatus('accounts-status', `正在加载 ${adminVariantLabel(variant)}...`);
+        const response = await fetch(withClientVariant('/api/admin/accounts', variant), { credentials: 'same-origin' });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            setStatus('accounts-status', payload.detail || '加载账号失败', 'error');
+            document.getElementById('accounts-list').innerHTML = '';
+            return;
+        }
+        state.accounts = payload.items || [];
+        renderAccountsManaged();
+        if (variant === FUCKSCHOOLRUN_VARIANT) {
+            state.authorAccounts = state.accounts.slice();
+            renderAuthorOptions();
+        }
+        setStatus('accounts-status', `已添加 ${adminVariantLabel(variant)} ${state.accounts.length} 个账号`, 'success');
+    }
+
+    function renderAccounts() {
+        const list = document.getElementById('accounts-list');
+        if (!state.accounts.length) {
+            list.innerHTML = '<div class="empty">当前还没有测试者账号</div>';
+            return;
+        }
+        list.innerHTML = '';
+        state.accounts.forEach(account => {
+            const node = document.createElement('div');
+            node.className = 'item account-item';
+            const accountVariant = account.clientVariant || currentAdminVariant();
+            node.innerHTML = `
+                <div class="item-top">
+                    <div>
+                        <h3>${escapeHtml(account.username)}</h3>
+                        <p>账号域：${escapeHtml(adminVariantLabel(accountVariant))} (${escapeHtml(accountVariant)})</p>
+                        <p>备注：${escapeHtml(account.remark || '')}<br>绑定设备：${escapeHtml(account.boundDeviceName || account.boundDeviceId || '未绑定')}</p>
+                    </div>
+                    <span class="pill ${account.status === 'banned' ? 'danger' : ''}">${escapeHtml(account.status)}</span>
+                </div>
+                <label>备注</label>
+                <input data-field="remark" type="text" value="${escapeHtml(account.remark || '')}">
+                <label>状态</label>
+                <select data-field="status">
+                    <option value="active" ${account.status === 'active' ? 'selected' : ''}>active</option>
+                    <option value="banned" ${account.status === 'banned' ? 'selected' : ''}>banned</option>
+                </select>
+                <label>重置密码（留空则不修改）</label>
+                <input data-field="password" type="password" placeholder="输入新密码">
+                <label><input data-field="reset" type="checkbox" style="width:auto;margin-right:8px;">清除机器绑定</label>
+                <div class="inline-actions">
+                    <button class="primary" data-action="save" type="button">保存修改</button>
+                    <button class="danger" data-action="delete" type="button">删除账号</button>
+                </div>
+                <div class="status" data-status></div>
+            `;
+            node.querySelector('[data-action="save"]').addEventListener('click', async () => {
+                const statusEl = node.querySelector('[data-status]');
+                setStatus(statusEl, '正在保存...');
+                const response = await fetch(withClientVariant(`/api/admin/accounts/${account.id}`, accountVariant), {
+                    method: 'PUT',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        remark: node.querySelector('[data-field="remark"]').value.trim(),
+                        status: node.querySelector('[data-field="status"]').value,
+                        password: node.querySelector('[data-field="password"]').value.trim(),
+                        resetBoundDevice: node.querySelector('[data-field="reset"]').checked
+                    })
+                });
+                const payload = await response.json().catch(() => ({}));
+                setStatus(statusEl, response.ok ? '保存成功' : (payload.detail || '保存失败'), response.ok ? 'success' : 'error');
+                if (response.ok) {
+                    await loadAccounts();
+                }
+            });
+            node.querySelector('[data-action="delete"]').addEventListener('click', async () => {
+                if (!confirm(`确认删除测试者账号?${account.username} 吗？`)) {
+                    return;
+                }
+                const statusEl = node.querySelector('[data-status]');
+                setStatus(statusEl, '正在删除...');
+                const response = await fetch(withClientVariant(`/api/admin/accounts/${account.id}`, accountVariant), {
+                    method: 'DELETE',
+                    credentials: 'same-origin'
+                });
+                const payload = await response.json().catch(() => ({}));
+                setStatus(statusEl, response.ok ? '删除成功' : (payload.detail || '删除失败'), response.ok ? 'success' : 'error');
+                if (response.ok) {
+                    await loadAccounts();
+                }
+            });
+            list.appendChild(node);
+        });
+    }
+
+    async function createAccount() {
+        const variant = currentAdminVariant();
+        setStatus('account-create-status', `正在创建 ${adminVariantLabel(variant)} 账号...`);
+        const response = await fetch(withClientVariant('/api/admin/accounts', variant), {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: document.getElementById('create-username').value.trim(),
+                password: document.getElementById('create-password').value.trim(),
+                testerType: document.getElementById('create-tester-type').value,
+                remark: document.getElementById('create-remark').value.trim()
+            })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            setStatus('account-create-status', payload.detail || '创建失败', 'error');
+            return;
+        }
+        document.getElementById('create-username').value = '';
+        document.getElementById('create-password').value = '';
+        document.getElementById('create-tester-type').value = 'ordinary';
+        document.getElementById('create-remark').value = '';
+        setStatus('account-create-status', `账号已创建到 ${adminVariantLabel(variant)}`, 'success');
+        await loadAccounts();
+    }
+
+    async function loadDevices() {
+        const variant = currentAdminVariant();
+        setStatus('devices-status', `正在加载 ${adminVariantLabel(variant)}...`);
+        const params = new URLSearchParams({
+            q: document.getElementById('devices-search').value.trim(),
+            statusFilter: document.getElementById('devices-filter').value,
+            clientVariant: variant
+        });
+        const response = await fetch(`/api/admin/devices?${params.toString()}`, { credentials: 'same-origin' });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            setStatus('devices-status', payload.detail || '加载设备失败', 'error');
+            document.getElementById('devices-list').innerHTML = '';
+            return;
+        }
+        const items = payload.items || [];
+        const list = document.getElementById('devices-list');
+        if (!items.length) {
+            list.innerHTML = '<div class="empty">当前没有机器码记录</div>';
+            setStatus('devices-status', `${adminVariantLabel(variant)} 当前没有机器码记录`);
+            return;
+        }
+        list.innerHTML = '';
+        items.forEach(device => {
+            const node = document.createElement('div');
+            node.className = 'item';
+            const deviceVariant = device.clientVariant || variant;
+            node.innerHTML = `
+                <div class="item-top">
+                    <div>
+                        <h3>${escapeHtml(device.deviceName || '未命名设备')}</h3>
+                        <p>机器码：${escapeHtml(device.deviceId)}<br>账号域：${escapeHtml(adminVariantLabel(deviceVariant))} (${escapeHtml(deviceVariant)})<br>最近 IP：${escapeHtml(device.lastIp || '-')}</p>
+                    </div>
+                    <span class="pill ${device.status === 'active' ? '' : 'danger'}">${escapeHtml(device.status)}</span>
+                </div>
+                <div class="meta">
+                    <span class="pill">错密次数：${device.wrongPasswordCount}</span>
+                    <span class="pill">错密封禁次数：${device.wrongPasswordBanCount}</span>
+                    <span class="pill">异机尝试次数：${device.wrongDeviceAttemptCount}</span>
+                </div>
+                <label>设备名</label>
+                <input data-field="deviceName" type="text" value="${escapeHtml(device.deviceName || '')}">
+                <label>状态</label>
+                <select data-field="status">
+                    <option value="active" ${device.status === 'active' ? 'selected' : ''}>active</option>
+                    <option value="temporary_banned" ${device.status === 'temporary_banned' ? 'selected' : ''}>temporary_banned</option>
+                    <option value="permanent_banned" ${device.status === 'permanent_banned' ? 'selected' : ''}>permanent_banned</option>
+                    <option value="blocked" ${device.status === 'blocked' ? 'selected' : ''}>blocked</option>
+                </select>
+                <label>封禁原因</label>
+                <input data-field="banReason" type="text" value="${escapeHtml(device.banReason || '')}">
+                <label>封禁说明</label>
+                <textarea data-field="banDetail">${escapeHtml(device.banDetail || '')}</textarea>
+                <label>临时封禁截止时间戳（毫秒）</label>
+                <input data-field="bannedUntil" type="text" value="${device.bannedUntil || 0}">
+                <label><input data-field="resetCounters" type="checkbox" style="width:auto;margin-right:8px;">重置错误计数</label>
+                <div class="inline-actions">
+                    <button class="primary" data-action="save" type="button">保存修改</button>
+                    <button class="danger" data-action="ban" type="button">立即封禁</button>
+                    <button class="ghost" data-action="unban" type="button">解封设备</button>
+                </div>
+                <div class="status" data-status></div>
+            `;
+            const statusEl = node.querySelector('[data-status]');
+            node.querySelector('[data-action="save"]').addEventListener('click', async () => {
+                setStatus(statusEl, '正在保存...');
+                const response = await fetch(withClientVariant(`/api/admin/devices/${encodeURIComponent(device.deviceId)}`, deviceVariant), {
+                    method: 'PUT',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        deviceName: node.querySelector('[data-field="deviceName"]').value.trim(),
+                        status: node.querySelector('[data-field="status"]').value,
+                        banReason: node.querySelector('[data-field="banReason"]').value.trim(),
+                        banDetail: node.querySelector('[data-field="banDetail"]').value.trim(),
+                        bannedUntil: Number(node.querySelector('[data-field="bannedUntil"]').value.trim() || '0'),
+                        resetCounters: node.querySelector('[data-field="resetCounters"]').checked
+                    })
+                });
+                const payload = await response.json().catch(() => ({}));
+                setStatus(statusEl, response.ok ? '保存成功' : (payload.detail || '保存失败'), response.ok ? 'success' : 'error');
+                if (response.ok) {
+                    await loadDevices();
+                }
+            });
+            node.querySelector('[data-action="ban"]').addEventListener('click', async () => {
+                setStatus(statusEl, '正在封禁...');
+                const response = await fetch(withClientVariant(`/api/admin/devices/${encodeURIComponent(device.deviceId)}/ban`, deviceVariant), {
+                    method: 'POST',
+                    credentials: 'same-origin'
+                });
+                const payload = await response.json().catch(() => ({}));
+                setStatus(statusEl, response.ok ? '封禁成功' : (payload.detail || '封禁失败'), response.ok ? 'success' : 'error');
+                if (response.ok) {
+                    await loadDevices();
+                }
+            });
+            node.querySelector('[data-action="unban"]').addEventListener('click', async () => {
+                setStatus(statusEl, '正在解封...');
+                const response = await fetch(withClientVariant(`/api/admin/devices/${encodeURIComponent(device.deviceId)}/unban`, deviceVariant), {
+                    method: 'POST',
+                    credentials: 'same-origin'
+                });
+                const payload = await response.json().catch(() => ({}));
+                setStatus(statusEl, response.ok ? '解封成功' : (payload.detail || '解封失败'), response.ok ? 'success' : 'error');
+                if (response.ok) {
+                    await loadDevices();
+                }
+            });
+            list.appendChild(node);
+        });
+        setStatus('devices-status', `已添加 ${adminVariantLabel(variant)} ${items.length} 台设备`, 'success');
+    }
+
+    function renderAuthorOptions() {
+        const select = document.getElementById('tips-author');
+        if (!select) return;
+        const currentValue = select.value;
+        select.innerHTML = '';
+        state.authorAccounts.forEach(account => {
+            const option = document.createElement('option');
+            option.value = account.id;
+            option.textContent = `${account.username} · ${account.testerTypeLabel || account.testerType || '未分类账号'}${account.remark ? ' · ' + account.remark : ''}`;
+            select.appendChild(option);
+        });
+        if (currentValue && Array.from(select.options).some(option => option.value === currentValue)) {
+            select.value = currentValue;
+        }
+    }
+
+    async function loadAuthorAccounts() {
+        const response = await fetch(withClientVariant('/api/admin/accounts', FUCKSCHOOLRUN_VARIANT), {
+            credentials: 'same-origin'
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            state.authorAccounts = [];
+            renderAuthorOptions();
+            return;
+        }
+        state.authorAccounts = payload.items || [];
+        renderAuthorOptions();
+    }
+
+    async function loadTips() {
+        setStatus('tips-status', '正在加载...');
+        const params = new URLSearchParams({
+            q: document.getElementById('tips-search').value.trim(),
+            published: document.getElementById('tips-filter').value,
+            page: '1',
+            pageSize: '100'
+        });
+        const response = await fetch(`/api/admin/tips?${params.toString()}`, { credentials: 'same-origin' });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            setStatus('tips-status', payload.detail || '加载使用技巧失败', 'error');
+            document.getElementById('tips-list').innerHTML = '';
+            return;
+        }
+        state.tips = payload.items || [];
+        renderTipsList();
+        setStatus('tips-status', `已添加 ${state.tips.length} 条使用技巧`, 'success');
+    }
+
+    function renderTipsList() {
+        const list = document.getElementById('tips-list');
+        if (!state.tips.length) {
+            list.innerHTML = '<div class="empty">当前没有使用技巧</div>';
+            return;
+        }
+        list.innerHTML = '';
+        state.tips.forEach(item => {
+            const node = document.createElement('div');
+            node.className = 'item';
+            node.innerHTML = `
+                <div class="item-top">
+                    <div>
+                        <h3>${escapeHtml(item.title)}</h3>
+                        <p>${escapeHtml(item.excerpt || '')}</p>
+                    </div>
+                    <span class="pill ${item.isPublished ? '' : 'danger'}">${item.isPublished ? '已发布' : '草稿'}</span>
+                </div>
+                <div class="meta">
+                    <span class="pill">作者：${escapeHtml(item.authorUsername || '-')}</span>
+                    <span class="pill">贡献者 QQ：${escapeHtml(item.contributorQq || '-')}</span>
+                </div>
+                <div class="inline-actions">
+                    <button class="ghost" data-action="edit" type="button">编辑</button>
+                    <button class="danger" data-action="delete" type="button">删除</button>
+                </div>
+                <div class="status" data-status></div>
+            `;
+            node.querySelector('[data-action="edit"]').addEventListener('click', () => startEditTip(item.id));
+            node.querySelector('[data-action="delete"]').addEventListener('click', () => deleteTip(item.id, node.querySelector('[data-status]')));
+            list.appendChild(node);
+        });
+    }
+
+    async function startEditTip(tipId) {
+        setStatus('tips-editor-status', '正在加载技巧详情...');
+        const response = await fetch(`/api/admin/tips/${tipId}`, { credentials: 'same-origin' });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            setStatus('tips-editor-status', payload.detail || '加载技巧详情失败', 'error');
+            return;
+        }
+        const tip = payload.data;
+        state.editingTipId = tip.id;
+        document.getElementById('tips-editor-title').textContent = '编辑使用技巧';
+        document.getElementById('tips-editing-id').value = tip.id;
+        document.getElementById('tips-title').value = tip.title || '';
+        document.getElementById('tips-contributor').value = tip.contributorQq || '';
+        document.getElementById('tips-published').value = tip.isPublished ? 'true' : 'false';
+        document.getElementById('tips-html').value = tip.htmlContent || '';
+        document.getElementById('tips-author').value = tip.authorAccountId || document.getElementById('tips-author').value;
+        document.getElementById('tips-delete').classList.remove('hidden');
+        updateTipsPreview();
+        setStatus('tips-editor-status', '技巧详情已加载', 'success');
+    }
+
+    function resetTipEditor() {
+        state.editingTipId = '';
+        document.getElementById('tips-editor-title').textContent = '新建使用技巧';
+        document.getElementById('tips-editing-id').value = '';
+        document.getElementById('tips-title').value = '';
+        document.getElementById('tips-contributor').value = '';
+        document.getElementById('tips-published').value = 'true';
+        document.getElementById('tips-html').value = '';
+        document.getElementById('tips-word-file').value = '';
+        document.getElementById('tips-delete').classList.add('hidden');
+        updateTipsPreview();
+        setStatus('tips-editor-status', '');
+    }
+
+    async function saveTip() {
+        const authorAccountId = document.getElementById('tips-author').value;
+        if (!authorAccountId) {
+            setStatus('tips-editor-status', '请先选择作者账号', 'error');
+            return;
+        }
+        const title = document.getElementById('tips-title').value.trim();
+        if (!title) {
+            setStatus('tips-editor-status', '请先填写标题', 'error');
+            return;
+        }
+        setStatus('tips-editor-status', '正在保存技巧?..');
+        const payloadBody = {
+            authorAccountId,
+            title,
+            contributorQq: document.getElementById('tips-contributor').value.trim(),
+            isPublished: document.getElementById('tips-published').value === 'true',
+            htmlContent: document.getElementById('tips-html').value
+        };
+        const editingId = state.editingTipId;
+        const response = await fetch(editingId ? `/api/admin/tips/${editingId}` : '/api/admin/tips', {
+            method: editingId ? 'PUT' : 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payloadBody)
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            setStatus('tips-editor-status', payload.detail || '保存失败', 'error');
+            return;
+        }
+        setStatus('tips-editor-status', '技巧已保存', 'success');
+        await loadTips();
+        await startEditTip(payload.data.id);
+    }
+
+    async function deleteTip(tipId, statusElement = null) {
+        if (!confirm('确认删除这篇使用技巧吗？')) {
+            return;
+        }
+        if (statusElement) {
+            setStatus(statusElement, '正在删除...');
+        }
+        const response = await fetch(`/api/admin/tips/${tipId}`, {
+            method: 'DELETE',
+            credentials: 'same-origin'
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            if (statusElement) {
+                setStatus(statusElement, payload.detail || '删除失败', 'error');
+            } else {
+                setStatus('tips-editor-status', payload.detail || '删除失败', 'error');
+            }
+            return;
+        }
+        if (state.editingTipId === tipId) {
+            resetTipEditor();
+        }
+        await loadTips();
+    }
+
+    async function importWord() {
+        const fileInput = document.getElementById('tips-word-file');
+        if (!fileInput.files.length) {
+            setStatus('tips-editor-status', '请先选择 .docx 文件', 'error');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        setStatus('tips-editor-status', '正在导入 Word...');
+        const response = await fetch('/api/admin/tips/import-word', {
+            method: 'POST',
+            credentials: 'same-origin',
+            body: formData
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            setStatus('tips-editor-status', payload.detail || 'Word 导入失败', 'error');
+            return;
+        }
+        document.getElementById('tips-html').value = payload.htmlContent || '';
+        updateTipsPreview();
+        setStatus('tips-editor-status', 'Word 内容已导入', 'success');
+    }
+
+    function updateTipsPreview() {
+        const html = document.getElementById('tips-html').value.trim();
+        tipsPreview.srcdoc = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'">' + html;
+    }
+
+    function renderAccountsManaged() {
+        const list = document.getElementById('accounts-list');
+        if (!state.accounts.length) {
+            list.innerHTML = '<div class="empty">当前还没有测试者账号</div>';
+            return;
+        }
+        list.innerHTML = '';
+        state.accounts.forEach(account => {
+            const node = document.createElement('div');
+            node.className = 'item account-item';
+            const testerType = account.testerType || '';
+            const accountVariant = account.clientVariant || currentAdminVariant();
+            node.innerHTML = `
+                <div class="item-top">
+                    <div>
+                        <h3>${escapeHtml(account.username)}</h3>
+                        <p>类型：${escapeHtml(account.testerTypeLabel || testerType)}<br>备注：${escapeHtml(account.remark || '')}<br>绑定设备：${escapeHtml(account.boundDeviceName || account.boundDeviceId || '未绑定')}<br>账号域：${escapeHtml(adminVariantLabel(accountVariant))} (${escapeHtml(accountVariant)})</p>
+                    </div>
+                    <span class="pill ${account.status === 'banned' ? 'danger' : ''}">${escapeHtml(account.status)}</span>
+                </div>
+                <label>备注</label>
+                <input data-field="remark" type="text" value="${escapeHtml(account.remark || '')}">
+                <label>测试者类型</label>
+                <select data-field="testerType">
+                    <option value="ordinary" ${testerType === 'ordinary' ? 'selected' : ''}>普通测试账号</option>
+                    <option value="advanced" ${testerType === 'advanced' ? 'selected' : ''}>高级测试账号</option>
+                    <option value="donor" ${testerType === 'donor' ? 'selected' : ''}>贡献者账号</option>
+                    <option value="pioneer" ${testerType === 'pioneer' ? 'selected' : ''}>先锋测试账号</option>
+                    <option value="" ${testerType === '' ? 'selected' : ''}>未分类账号</option>
+                </select>
+                <label>状态</label>
+                <select data-field="status">
+                    <option value="active" ${account.status === 'active' ? 'selected' : ''}>active</option>
+                    <option value="banned" ${account.status === 'banned' ? 'selected' : ''}>banned</option>
+                </select>
+                <label>封禁原因</label>
+                <input data-field="banReason" type="text" value="${escapeHtml(account.banReason || '')}" placeholder="例如：违规共享、测试资格撤销">
+                <label>封禁说明</label>
+                <textarea data-field="banDetail" placeholder="展示给被封禁账号的说明">${escapeHtml(account.banDetail || '')}</textarea>
+                <label>重置密码（留空则不修改）</label>
+                <input data-field="password" type="password" placeholder="输入新密码">
+                <label><input data-field="reset" type="checkbox" style="width:auto;margin-right:8px;">清除机器绑定</label>
+                <div class="inline-actions">
+                    <button class="primary" data-action="save" type="button">保存修改</button>
+                    <button class="danger" data-action="ban" type="button">封禁账号</button>
+                    <button class="ghost" data-action="unban" type="button">解封账号</button>
+                    <button class="danger" data-action="delete" type="button">删除账号</button>
+                </div>
+                <div class="status" data-status></div>
+            `;
+
+            const persistAccount = async (overrideStatus = null) => {
+                const statusEl = node.querySelector('[data-status]');
+                if (overrideStatus) {
+                    node.querySelector('[data-field="status"]').value = overrideStatus;
+                }
+                setStatus(statusEl, '正在保存...');
+                const response = await fetch(withClientVariant(`/api/admin/accounts/${account.id}`, accountVariant), {
+                    method: 'PUT',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        remark: node.querySelector('[data-field="remark"]').value.trim(),
+                        testerType: node.querySelector('[data-field="testerType"]').value,
+                        status: node.querySelector('[data-field="status"]').value,
+                        banReason: node.querySelector('[data-field="banReason"]').value.trim(),
+                        banDetail: node.querySelector('[data-field="banDetail"]').value.trim(),
+                        password: node.querySelector('[data-field="password"]').value.trim(),
+                        resetBoundDevice: node.querySelector('[data-field="reset"]').checked
+                    })
+                });
+                const payload = await response.json().catch(() => ({}));
+                setStatus(statusEl, response.ok ? '保存成功' : (payload.detail || '保存失败'), response.ok ? 'success' : 'error');
+                if (response.ok) {
+                    await loadAccounts();
+                }
+            };
+
+            node.querySelector('[data-action="save"]').addEventListener('click', async () => {
+                await persistAccount();
+            });
+            node.querySelector('[data-action="ban"]').addEventListener('click', async () => {
+                const statusEl = node.querySelector('[data-status]');
+                node.querySelector('[data-field="status"]').value = 'banned';
+                setStatus(statusEl, '正在封禁...');
+                const response = await fetch(withClientVariant(`/api/admin/accounts/${account.id}/ban`, accountVariant), {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        banReason: node.querySelector('[data-field="banReason"]').value.trim() || 'manual',
+                        banDetail: node.querySelector('[data-field="banDetail"]').value.trim()
+                    })
+                });
+                const payload = await response.json().catch(() => ({}));
+                setStatus(statusEl, response.ok ? '封禁成功' : (payload.detail || '封禁失败'), response.ok ? 'success' : 'error');
+                if (response.ok) {
+                    await loadAccounts();
+                }
+            });
+            node.querySelector('[data-action="unban"]').addEventListener('click', async () => {
+                const statusEl = node.querySelector('[data-status]');
+                node.querySelector('[data-field="status"]').value = 'active';
+                setStatus(statusEl, '正在解封...');
+                const response = await fetch(withClientVariant(`/api/admin/accounts/${account.id}/unban`, accountVariant), {
+                    method: 'POST',
+                    credentials: 'same-origin'
+                });
+                const payload = await response.json().catch(() => ({}));
+                setStatus(statusEl, response.ok ? '解封成功' : (payload.detail || '解封失败'), response.ok ? 'success' : 'error');
+                if (response.ok) {
+                    await loadAccounts();
+                }
+            });
+            node.querySelector('[data-action="delete"]').addEventListener('click', async () => {
+                if (!confirm(`确认删除测试者账号?${account.username} 吗？`)) {
+                    return;
+                }
+                const statusEl = node.querySelector('[data-status]');
+                setStatus(statusEl, '正在删除...');
+                const response = await fetch(withClientVariant(`/api/admin/accounts/${account.id}`, accountVariant), {
+                    method: 'DELETE',
+                    credentials: 'same-origin'
+                });
+                const payload = await response.json().catch(() => ({}));
+                setStatus(statusEl, response.ok ? '删除成功' : (payload.detail || '删除失败'), response.ok ? 'success' : 'error');
+                if (response.ok) {
+                    await loadAccounts();
+                }
+            });
+
+            list.appendChild(node);
+        });
+    }
+
+    document.querySelectorAll('[data-tab]').forEach(button => {
+        button.addEventListener('click', () => switchTab(button.dataset.tab));
+    });
+    document.getElementById('login-button')?.addEventListener('click', login);
+    logoutButton?.addEventListener('click', logout);
+    document.getElementById('refresh-notice')?.addEventListener('click', loadNotice);
+    document.getElementById('save-notice')?.addEventListener('click', saveNotice);
+    document.getElementById('software-refresh')?.addEventListener('click', loadSoftwareNames);
+    document.getElementById('software-add')?.addEventListener('click', addSoftwareName);
+    document.getElementById('create-account')?.addEventListener('click', createAccount);
+    document.getElementById('refresh-accounts')?.addEventListener('click', loadAccounts);
+    document.getElementById('devices-refresh')?.addEventListener('click', loadDevices);
+    document.getElementById('admin-client-variant')?.addEventListener('change', async () => {
+        updateAdminVariantHints();
+        await loadAccounts();
+        await loadDevices();
+    });
+    document.getElementById('tips-refresh')?.addEventListener('click', loadTips);
+    document.getElementById('tips-create-new')?.addEventListener('click', resetTipEditor);
+    document.getElementById('tips-save')?.addEventListener('click', saveTip);
+    document.getElementById('tips-delete')?.addEventListener('click', () => deleteTip(state.editingTipId));
+    document.getElementById('tips-import-word')?.addEventListener('click', importWord);
+    document.getElementById('tips-reset')?.addEventListener('click', resetTipEditor);
+    document.getElementById('tips-html')?.addEventListener('input', updateTipsPreview);
+    updateAdminVariantHints();
+
+    if ({{ 'true' if authenticated else 'false' }}) {
+        switchTab('notice');
+        loadNotice();
+        loadSoftwareNames();
+        loadAccounts().then(() => {
+            loadAuthorAccounts();
+            loadDevices();
+            loadTips();
+        });
+    }
+</script>
+</body>
+</html>

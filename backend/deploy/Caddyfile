@@ -1,0 +1,43 @@
+# Caddy：自动申请/续期 HTTPS 证书 + 反向代理 + APK 静态下载
+#
+# SITE_ADDRESS 取值示例：
+#   app.example.com        → 自动为域名签发证书（需 80/443 可达、域名已解析）
+#   :80                    → 只用 HTTP（没有域名/未备案时的过渡方案，不安全，仅测试）
+# 其余环境变量来自同目录 .env
+
+{
+	email {$ACME_EMAIL}
+	# 首次调试可打开下面这行，用 Let's Encrypt 测试环境，避免触发速率限制
+	# acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+}
+
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	# 1) 安装包下载：/dl/<文件名> → 容器内 /srv/releases/<文件名>
+	@apk path /dl/*
+	handle @apk {
+		reverse_proxy api:8000
+	}
+
+	# 2) 其余全部转发给后端（含 /api/**、/admin 管理后台、/docs）
+	handle {
+		request_body {
+			max_size 400MB          # 允许管理端上传 APK
+		}
+		reverse_proxy api:8000 {
+			header_up X-Real-IP {remote_host}
+		}
+	}
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		-Server
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

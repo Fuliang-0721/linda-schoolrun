@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="telemetry_title">数据上报设置</string>
+    <string name="telemetry_description">以下选项默认开启，可分别关闭。统计包含随机安装标识、机型、版本、启动及模拟次数和时长；崩溃上报包含脱敏后的堆栈和日志；位置上报包含最近一次真实经纬度、精度和时间。位置仅在前台且未模拟时获取，服务器覆盖最近一次快照。\n\n关闭统计或位置会请求删除已上传统计及位置记录，再按仍开启的选项上报；关闭崩溃上报会请求删除本安装上传的日志。删除失败会在下次联网打开时重试，历史备份按服务器保留周期到期。所有数据仅供后台管理员查看。默认开启不等于系统定位授权；你可在继续前取消选中。</string>
+    <string name="telemetry_usage">上传使用统计</string>
+    <string name="telemetry_location">上传最近一次真实位置</string>
+    <string name="telemetry_crash">自动上传崩溃日志</string>
+    <string name="telemetry_erase">全部关闭并删除</string>
+    <string name="telemetry_save">保存</string>
+    <string name="telemetry_saved">设置已保存；如需删除记录，将联网处理，失败后下次打开重试。</string>
+    <string name="telemetry_permission_needed">模拟功能需要定位权限，请授权后再次开始。</string>
+</resources>

@@ -1,0 +1,13 @@
+# SDK path (or configure ANDROID_HOME)
+sdk.dir=C\:\\path\\to\\Android\\Sdk
+
+# Your Baidu Android key, bound to applicationId and your certificate.
+MAPS_API_KEY=
+MAPS_SAFE_CODE=YOUR_SIGNING_SHA1;com.acooldog.toolbox
+SHARE_API_BASE_URL=https://app.example.com/
+
+# Needed only for release tasks. Never commit the real key or passwords.
+RELEASE_STORE_FILE=
+RELEASE_STORE_PASSWORD=
+RELEASE_KEY_ALIAS=
+RELEASE_KEY_PASSWORD=

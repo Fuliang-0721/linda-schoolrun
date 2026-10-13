@@ -1,0 +1,28 @@
+[Unit]
+Description=Free Schoolrun FastAPI Backend
+Documentation=https://github.com/
+After=network.target mysql.service
+Wants=mysql.service
+
+[Service]
+Type=simple
+# 建议单独建用户：sudo useradd -r -s /usr/sbin/nologin freeschoolrun && sudo chown -R freeschoolrun:freeschoolrun /opt/freeschoolrun
+User=freeschoolrun
+Group=freeschoolrun
+WorkingDirectory=/opt/freeschoolrun/backend
+EnvironmentFile=/opt/freeschoolrun/backend/.env
+# 只监听本机 8000，外部统一走 Nginx/Caddy 的 443
+ExecStart=/opt/freeschoolrun/backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --proxy-headers --forwarded-allow-ips 127.0.0.1
+Restart=always
+RestartSec=5
+TimeoutStopSec=20
+
+# 基础加固
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/freeschoolrun/backend/releases /opt/freeschoolrun/backend/app_logs
+
+[Install]
+WantedBy=multi-user.target

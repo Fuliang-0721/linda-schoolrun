@@ -1,0 +1,17 @@
+<resources>
+    <!-- 每日 3 公里额度 -->
+    <string name="daily_quota_internal">今日模拟：内部账号，不限里程</string>
+    <string name="daily_quota_format">今日剩余 %.2f 公里</string>
+    <string name="daily_quota_finish_loop">额度已用完，跑完本圈后自动停止</string>
+    <string name="daily_limit_title">今日模拟额度已用完</string>
+    <string name="daily_limit_message">公共版本每天最多模拟 3.00 公里，今天已经用完，明天 0 点重置。\n\n登录内部账号后可无限使用。</string>
+    <string name="daily_limit_go_login">去登录内部账号</string>
+    <string name="daily_limit_later">知道了</string>
+
+    <!-- 远程关闭 -->
+    <string name="remote_disabled_title">软件已停止服务</string>
+    <string name="remote_disabled_default_message">该软件已被维护者远程关闭，暂时无法使用。</string>
+    <string name="remote_disabled_exit">退出</string>
+    <string name="remote_check_retry">重试</string>
+    <string name="remote_check_failed_message">无法连接服务器确认服务状态，请检查网络（或关闭代理/VPN）后点「重试」。\n\n为便于随时停止服务，本软件每次打开都需要服务器确认，未确认时不能使用。</string>
+</resources>

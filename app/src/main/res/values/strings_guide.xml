@@ -1,0 +1,63 @@
+<resources>
+    <!-- 使用前设置向导 -->
+    <string name="guide_title">使用前设置</string>
+    <string name="guide_progress_format">第 %1$d/%2$d 步</string>
+    <string name="guide_status_done">✓ 已完成</string>
+    <string name="guide_status_pending">尚未完成</string>
+    <string name="guide_status_required">尚未完成（此项必须完成）</string>
+
+    <string name="guide_action_settings">去设置</string>
+    <string name="guide_action_grant">授予权限</string>
+    <string name="guide_action_next">下一步</string>
+    <string name="guide_action_skip">跳过</string>
+    <string name="guide_action_prev">上一步</string>
+    <string name="guide_action_agree_enter">同意并进入</string>
+    <string name="guide_finish_toast">设置完成，欢迎使用</string>
+
+    <string name="guide_step_developer_title">开启开发者选项，并选择模拟位置应用</string>
+    <string name="guide_step_developer_desc">这是最关键的设置，未完成时定位模拟不会生效。\n\n1. 先开启开发者选项：打开系统「设置」→「关于手机」→ 连续点击「版本号」7 次；\n2. 回到「设置」→「系统」→「开发者选项」→ 找到「选择模拟位置信息应用」（部分机型叫「选择模拟位置应用」）；\n3. 在列表中选择 临大校跑。\n\n设置完成后回到本页面会自动检测。</string>
+    <string name="guide_dev_not_enabled">开发者选项还没开启：设置 → 关于手机 → 连续点击「版本号」7 次</string>
+
+    <string name="guide_step_location_title">授予定位权限</string>
+    <string name="guide_step_location_desc">定位权限用于本地地图和模拟服务，可先跳过，需要时再授权。\n\n请选择“使用应用时允许”。系统仅允许大致位置时也能继续。授予定位权限后，本应用会在前台打开时上报一次最近实际位置（详见《用户协议》与后续说明页）。</string>
+
+    <string name="guide_step_background_title">允许后台定位</string>
+    <string name="guide_step_background_desc">部分设备的后台模拟场景可能需要额外授权，可按实际使用需要设置为“始终允许”，也可跳过。\n\n最近实际位置上传仅在前台打开应用时尝试一次，不要求后台定位权限。</string>
+
+    <string name="guide_step_overlay_title">允许显示悬浮窗</string>
+    <string name="guide_step_overlay_desc">用于显示小地图悬浮窗和悬浮摇杆。\n\n请在列表中找到 临大校跑，打开「允许显示在其他应用的上层」。</string>
+
+    <string name="mock_inject_failed_title">模拟位置没有生效</string>
+    <string name="mock_inject_failed_message">模拟已经在运行，但系统没有接受本应用写入的位置，所以其他应用看到的仍然是真实定位。\n\n常见原因：\n1. 开发者选项里没有把 临大校跑 选为「模拟位置信息应用」；选中后建议重启一次手机再试；\n2. 国产系统（OPPO/一加、小米、华为、vivo 等）在后台限制了本应用，见「设置检查」里的电池优化一项。\n\n可点下方按钮直接打开开发者选项，或到「设置检查」逐项确认。</string>
+    <string name="guide_step_notification_title">允许通知 · 更新进度提醒</string>
+    <string name="guide_step_notification_desc">下载更新时会在通知栏显示下载进度，下载完成后点通知即可直接安装；模拟运行中的常驻提示也依赖通知权限。\n\n点下方按钮允许即可（Android 13 及以上需要单独授权）。\n不授权不影响模拟功能，只是看不到下载进度与完成提醒。</string>
+    <string name="guide_step_install_title">允许安装应用 · 应用内自更新</string>
+    <string name="guide_step_install_desc">本应用通过下载安装包自我更新，需要「安装未知应用」权限才能拉起系统安装界面（否则会出现"点安装没反应"）。\n\n点下方按钮，把 临大校跑 的「允许安装应用 / 未知来源应用」打开即可。\n不授权不影响模拟功能，只是无法在应用内直接安装新版本。</string>
+    <string name="guide_step_battery_title">关闭电池优化 · 允许后台运行</string>
+    <string name="guide_step_battery_desc">这一项不通过时，模拟会在锁屏或切到后台几秒后被系统“速冻”，表现为定位不再更新（OPPO/一加 最常见）。\n\n1. 点下方按钮，选择“不优化 / 允许”；\n2. 再按机型补一下：\n· OPPO / 一加：设置 → 电池 → 应用耗电管理 → 本应用 → 允许后台运行、关闭“智能省电”\n· 小米 / 红米：应用信息 → 省电策略 → 无限制；权限里打开“自启动”\n· 华为 / 荣耀：应用启动管理 → 手动管理（自启动 / 关联启动 / 后台活动都允许）\n· vivo / iQOO：电池 → 后台高耗电 → 允许\n3. 最近任务里把本应用卡片下拉“加锁”，防止一键清理把模拟服务杀掉。\n\n完成后再回到本页会自动检测通过。</string>
+    <string name="guide_step_activity_title">授予运动与健身权限</string>
+    <string name="guide_step_activity_desc">仅「真实跑步联动」需要读取步数时使用，不使用该功能可以跳过。</string>
+
+    <string name="guide_step_consent_title">阅读并同意协议</string>
+    <string name="guide_step_consent_desc">请先阅读并同意《用户协议》与《免责声明》，然后进入应用。</string>
+    <string name="guide_consent_checkbox">我已阅读并同意《用户协议》和《免责声明》</string>
+    <string name="guide_consent_need_check">请先勾选同意《用户协议》和《免责声明》</string>
+
+    <!-- 最后一页：权限建议 -->
+    <string name="guide_step_tip_title">设置完成，按需使用</string>
+    <string name="guide_step_tip_desc">请仅在有权进行的开发、调试与测试场景中使用模拟定位。\n\n可在设置中查看数据上报说明并调整定位权限。使用后及时停止模拟，恢复设备正常定位。</string>
+    <string name="guide_action_enter">进入应用</string>
+
+    <!-- 设置检查 -->
+    <string name="settings_check_title">设置检查</string>
+    <string name="settings_check_card_summary">查看使用前的必要设置是否已就绪</string>
+    <string name="settings_check_summary_format">已完成 %1$d/%2$d 项</string>
+    <string name="settings_check_hint">点击右侧按钮可直接去设置；回到本页面会自动重新检测。</string>
+    <string name="settings_check_all_done">全部设置已完成，可以正常使用。</string>
+    <string name="settings_check_status_done">已完成</string>
+    <string name="settings_check_status_pending">未完成</string>
+    <string name="settings_check_status_critical">未完成（必须设置，否则定位模拟无效）</string>
+    <string name="settings_check_action_fix">去设置</string>
+    <string name="settings_check_action_grant">授予</string>
+    <string name="settings_check_action_docs">查看协议</string>
+</resources>
